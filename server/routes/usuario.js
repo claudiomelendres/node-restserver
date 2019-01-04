@@ -3,14 +3,18 @@ const bcrypt = require('bcrypt');
 const _ = require('underscore');
 
 const Usuario = require('../models/usuario');
+const { verificarToken, verificarAdmin_Role } = require('../middlewares/authenticacion');
 
 
 const app = express();
 
-app.get('/usuario', function(req, res) {
+app.get('/usuario', verificarToken, (req, res) => {
 
-    let estadoUsr = req.query.estado;
-    if (!estadoUsr) {
+
+
+
+    let estadoUsr = req.query.estado; // yo aumente para que funcione 
+    if (!estadoUsr) { // el filtro de estado 
         estadoUsr = true;
     }
     //estadoUsr = Boolean(estadoUsr);
@@ -49,7 +53,7 @@ app.get('/usuario', function(req, res) {
 
 
 
-app.post('/usuario', function(req, res) {
+app.post('/usuario', [verificarToken, verificarAdmin_Role], function(req, res) {
 
     let body = req.body;
 
@@ -80,7 +84,7 @@ app.post('/usuario', function(req, res) {
 
 
 
-app.put('/usuario/:id', function(req, res) {
+app.put('/usuario/:id', [verificarToken, verificarAdmin_Role], function(req, res) {
     let id = req.params.id;
     //pick : retorna una copia del objeto con esos campos
     let body = _.pick(req.body, ['nombre', 'email', 'img', 'role', 'estado']);
@@ -138,7 +142,7 @@ app.put('/usuario/:id', function(req, res) {
 
 // });
 
-app.delete('/usuario/:id', function(req, res) {
+app.delete('/usuario/:id', [verificarToken, verificarAdmin_Role], function(req, res) {
 
     let id = req.params.id;
     let cambiaEstado = {
